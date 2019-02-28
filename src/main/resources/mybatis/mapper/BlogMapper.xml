@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itkang.blog.mapper.BlogMapper" >
+  <resultMap id="BaseResultMap" type="com.itkang.blog.entity.Blog" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="introduction" property="introduction" jdbcType="VARCHAR" />
+    <result column="keyword" property="keyword" jdbcType="VARCHAR" />
+    <result column="click_num" property="clickNum" jdbcType="INTEGER" />
+    <result column="comment_num" property="commentNum" jdbcType="INTEGER" />
+    <result column="positive_num" property="positiveNum" jdbcType="INTEGER" />
+    <result column="is_top" property="isTop" jdbcType="TINYINT" />
+    <result column="is_recommend" property="isRecommend" jdbcType="TINYINT" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="add_time" property="addTime" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="type_id" property="typeId" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.itkang.blog.entity.Blog" extends="BaseResultMap" >
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, title, introduction, keyword, click_num, comment_num,positive_num,is_top,is_recommend,update_time,add_time,status,type_id,user_id
+  </sql>
+  <sql id="Blob_Column_List" >
+    content
+  </sql>
+  <!--<select id="findUserById" resultMap="BaseResultMap" parameterType="java.lang.Integer" >-->
+    <!--select -->
+    <!--<include refid="Base_Column_List" />-->
+    <!--from user-->
+    <!--where id = #{id,jdbcType=INTEGER}-->
+  <!--</select>-->
+  <sql id="union_Column_List" >
+    b.id, b.title, b.introduction, b.keyword, b.click_num, b.comment_num,b.positive_num,b.is_top,b.is_recommend,b.update_time,b.add_time,b.status,b.type_id,b.user_id
+  </sql>
+  <select id="findBlogListByParams" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select
+    <include refid="union_Column_List" />
+    from blog b
+    <where>
+      1=1
+      <if test="status != null">
+        and b.status = #{status}
+      </if>
+      <if test="typeId != null">
+        and b.type_id = #{typeId}
+      </if>
+      <if test="keyword != null and keyword.length()>0">
+        and (b.title like CONCAT(CONCAT('%', #{keyword}), '%')  or b.keyword like CONCAT(CONCAT('%', #{keyword}), '%'))
+      </if>
+      order by b.add_time DESC
+    </where>
+  </select>
+  <delete id="deleteBlogById" parameterType="java.lang.Integer" >
+    delete from blog
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+</mapper>
